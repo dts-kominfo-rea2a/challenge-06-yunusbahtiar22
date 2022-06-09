@@ -20,30 +20,39 @@ let modifyFile3 = (val) => {
 
 // TODO: Kerjakan bacaData
 // gunakan variabel file1, file2, dan file3
-const bacaData = (fnCallback) => {
-  // asumsikan file-file diatas sudah diketahui strukturnya
 
+// helper function
+const asyncMap = (list, fn, onFinish) => {
   const result = [];
+  let nRemaining = list.length;
 
-  fs.readFile(file1, 'utf-8', (err, data) => {
+  list.forEach((item, index) => {
+    fn(item, (err, data) => {
+      if (err) return onFinish(err, null);
+
+      result[index] = JSON.parse(data);
+
+      nRemaining--;
+
+      if (!nRemaining) return onFinish(null, result);
+    });
+  });
+};
+
+const bacaData = (fnCallback) => {
+
+  const files = [file1, file2, file3];
+  const formatted = [];
+
+  asyncMap(files, fs.readFile, (err, data) => {
     if (err) return fnCallback(err, null);
 
-    const parsed = JSON.parse(data);
-    result.push(parsed['message'].split(' ')[1]);
+    // seharusnya bisa dipecahkan dengan reduce
+    formatted.push(data[0].message.split(' ')[1]);
+    formatted.push(data[1][0].message.split(' ')[1]);
+    formatted.push(data[2][0].data.message.split(' ')[1]);
 
-    fs.readFile(file2, 'utf-8', (err, data) => {
-      if (err) return fnCallback(err, null);
-      
-      const parsed = JSON.parse(data);
-      result.push(parsed[0].message.split(' ')[1]);
-      
-      fs.readFile(file3, 'utf-8', (err, data) => {
-        const parsed = JSON.parse(data);
-        result.push(parsed[0]['data']['message'].split(' ')[1])
-
-        return fnCallback(null, result);
-      });
-    });
+    return fnCallback(null, formatted);
   });
 };
 
