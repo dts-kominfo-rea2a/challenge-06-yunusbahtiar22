@@ -1,6 +1,5 @@
 // TODO: import module bila dibutuhkan di sini
 const fs = require('fs');
-const { parse } = require('path');
 
 // ! JANGAN DIMODIFIKASI
 let file1 = "./data1.json";
